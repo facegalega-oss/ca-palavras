@@ -1,1 +1,60 @@
+# Atualizacoes por GitHub
 
+## 1. Conteudo e politica
+
+Repositorio: https://github.com/facegalega-oss/ca-palavras (publico).
+Enviar o projeto, incluindo .github/workflows e publication, para esse repositorio.
+Em Settings > Pages > Build and deployment > Source, escolher GitHub Actions.
+Em Actions, abrir Publish word catalog and privacy page e clicar Run workflow
+na branch main. Aguardar o job Deploy concluir.
+O workflow testa e exporta catalog.json, privacy.html e pagina inicial.
+
+URL prevista da politica: https://facegalega-oss.github.io/ca-palavras/privacy.html
+URL prevista do catalogo: https://facegalega-oss.github.io/ca-palavras/catalog.json
+Abrir a politica no navegador e confirmar que esta publicada antes de copiar
+a URL para privacyUrl em src/legal/publisher.json. Gerar novamente os arquivos e o AAB.
+Para o catalogo, configurar EXPO_PUBLIC_CONTENT_URL com a URL acima de catalog.json no
+ambiente de build do EAS e a variavel CONTENT_URL nos ambientes do GitHub.
+Em 11/10/2026 o repositorio estava publico, mas Pages estava desativado e a politica
+retornava HTTP 404. As URLs acima sao destinos previstos; privacyUrl permanece vazio
+ate a publicacao ser confirmada. Nao armazenar EXPO_TOKEN ou credenciais nos arquivos.
+
+Ao modificar palavras/fases, aumentar LOCAL_CATALOG.version em catalog.ts,
+executar testes e publicar o workflow. O app so aceita versoes superiores,
+preserva fases existentes e atualiza o conteudo fora de partidas em andamento.
+Arquivo e dados JSON; nao executa codigo vindo do catalogo.
+
+## 2. Codigo e interface via EAS Update
+
+expo-updates configurado para este projeto EAS, runtime 6.1.0.
+Primeiro instalar novo APK/AAB compilado com essa biblioteca; builds antigos
+nao podem receber OTA, pois tinham atualizacoes desativadas.
+
+Criar ambientes GitHub preview e production. Adicionar EXPO_TOKEN como segredo,
+obtido da conta Expo autorizada. Configurar protecao/revisao do ambiente production.
+Workflow manual Publish compatible app update: escolher preview primeiro e testar.
+Depois escolher production e informar notas da atualizacao.
+
+Acoes executam testes e eas update para o canal escolhido. Elas nao geram APK nem
+fazem upload de binarios na Play Store. O app busca atualizacoes ao iniciar;
+download em segundo plano fica disponivel para uma proxima abertura, sem recarregar
+uma partida ativa. Sem rede ou atualizacao compativel, usa a versao embarcada/cache.
+
+Runtime explicito: alterar bibliotecas nativas, permissoes ou codigo Android exige
+novo runtime (app.json e manifesto Android), versao e novo AAB distribuido pela Play.
+Mudancas puramente JS/interface devem continuar compativeis com runtime existente.
+Nao usar OTA para contornar revisao/politicas, instalar APK ou baixar dex/so do GitHub.
+
+## 3. Confirmar antes do primeiro deploy
+
+- AAB assinado com nova versao e atualizacoes ativadas.
+- Build logs confirmando canais production/preview.
+- EXPO_TOKEN armazenado somente em Secrets; revisar permissoes do repositorio.
+- Politica e Seguranca dos dados refletem conexoes Expo/GitHub.
+- Testar atualizacao preview, offline e preservacao do progresso antes de production.
+- Nao ha ranking global neste workflow; resultados autenticados exigem servidor.
+
+Referencias:
+- https://docs.expo.dev/eas-update/introduction/
+- https://docs.expo.dev/eas-update/runtime-versions/
+- https://support.google.com/googleplay/android-developer/answer/16559646
